@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# Streamlit app (replaced by React web app)
+app.py
+
+# Large raw dataset
+KaggleV2-May-2016.csv
+
+# Large model file (60MB — exceeds GitHub 50MB limit)
+no_show_model.pkl
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
