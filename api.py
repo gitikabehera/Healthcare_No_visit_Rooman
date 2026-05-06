@@ -106,7 +106,7 @@ def ask_ai(data: ChatRequest):
         if not hf_token:
             return {"reply": "HF token not configured"}
 
-        client = InferenceClient(api_key=hf_token)
+        client = InferenceClient(token=hf_token)
 
         response = client.chat_completion(
             model="meta-llama/Llama-3.1-8B-Instruct",
