@@ -8,7 +8,9 @@ import os
 
 app = FastAPI(title="Healthcare Appointment No-Show API")
 
+# -------------------------------
 # CORS (allow frontend)
+# -------------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,9 +31,9 @@ try:
     scaler = joblib.load("scaler.pkl")
     with open("feature_columns.json", "r") as f:
         feature_cols = json.load(f)
-    print("Model loaded successfully")
+    print("✅ Model loaded successfully")
 except Exception as e:
-    print("Model not found, running without ML model:", e)
+    print("⚠️ Model not found, running without ML model:", e)
 
 # -------------------------------
 # REQUEST MODELS
@@ -53,7 +55,7 @@ def home():
     return {"status": "API is active and running"}
 
 # -------------------------------
-# PREDICT
+# PREDICT API
 # -------------------------------
 @app.post("/predict")
 def predict(data: PatientData):
@@ -75,8 +77,10 @@ def predict(data: PatientData):
 
         input_df = pd.DataFrame([input_dict], columns=feature_cols)
 
-        num_cols = ['age', 'waiting_days', 'scholarship', 'hipertension',
-                    'diabetes', 'alcoholism', 'handcap', 'sms_received', 'neighbourhood']
+        num_cols = [
+            'age', 'waiting_days', 'scholarship', 'hipertension',
+            'diabetes', 'alcoholism', 'handcap', 'sms_received', 'neighbourhood'
+        ]
 
         input_df[num_cols] = scaler.transform(input_df[num_cols])
 
@@ -92,7 +96,7 @@ def predict(data: PatientData):
         raise HTTPException(status_code=500, detail=str(e))
 
 # -------------------------------
-# AI CHAT (FINAL STABLE VERSION)
+# AI CHAT (FINAL WORKING VERSION)
 # -------------------------------
 @app.post("/ask_ai")
 def ask_ai(data: ChatRequest):
@@ -106,11 +110,11 @@ def ask_ai(data: ChatRequest):
 
         client = InferenceClient(token=hf_token)
 
-        # ✅ FINAL WORKING MODEL
+        # ✅ Stable free model
         response = client.text_generation(
-            model="google/flan-t5-large",
+            model="bigscience/bloom-560m",
             prompt=f"Answer as a healthcare data expert: {data.question}",
-            max_new_tokens=200,
+            max_new_tokens=150,
         )
 
         return {"reply": response}
@@ -119,7 +123,7 @@ def ask_ai(data: ChatRequest):
         return {"reply": f"AI Error: {str(e)}"}
 
 # -------------------------------
-# RUN
+# RUN SERVER
 # -------------------------------
 if __name__ == "__main__":
     import uvicorn
