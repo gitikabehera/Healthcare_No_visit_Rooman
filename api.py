@@ -92,7 +92,7 @@ def predict(data: PatientData):
         raise HTTPException(status_code=500, detail=str(e))
 
 # -------------------------------
-# AI CHAT (FINAL FIXED VERSION)
+# AI CHAT (FINAL STABLE VERSION)
 # -------------------------------
 @app.post("/ask_ai")
 def ask_ai(data: ChatRequest):
@@ -106,9 +106,9 @@ def ask_ai(data: ChatRequest):
 
         client = InferenceClient(token=hf_token)
 
-        # ✅ Use working public model
+        # ✅ FINAL WORKING MODEL
         response = client.text_generation(
-            model="HuggingFaceH4/zephyr-7b-beta",
+            model="google/flan-t5-large",
             prompt=f"Answer as a healthcare data expert: {data.question}",
             max_new_tokens=200,
         )
