@@ -96,7 +96,7 @@ def predict(data: PatientData):
         raise HTTPException(status_code=500, detail=str(e))
 
 # -------------------------------
-# AI CHAT (GROQ - FINAL FIX)
+# AI CHAT (GROQ - FIXED MODEL)
 # -------------------------------
 @app.post("/ask_ai")
 def ask_ai(data: ChatRequest):
@@ -121,7 +121,9 @@ def ask_ai(data: ChatRequest):
                     "content": data.question
                 }
             ],
-            model="llama3-8b-8192"
+            model="llama3-70b-8192",   # ✅ FIXED HERE
+            temperature=0.7,
+            max_tokens=200
         )
 
         return {
@@ -137,3 +139,4 @@ def ask_ai(data: ChatRequest):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+   
