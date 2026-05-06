@@ -96,28 +96,37 @@ def predict(data: PatientData):
         raise HTTPException(status_code=500, detail=str(e))
 
 # -------------------------------
-# AI CHAT (FINAL WORKING VERSION)
+# AI CHAT (GROQ - FINAL FIX)
 # -------------------------------
 @app.post("/ask_ai")
 def ask_ai(data: ChatRequest):
     try:
-        from huggingface_hub import InferenceClient
+        from groq import Groq
 
-        hf_token = os.environ.get("HF_TOKEN")
+        api_key = os.environ.get("GROQ_API_KEY")
 
-        if not hf_token:
-            return {"reply": "HF token not configured"}
+        if not api_key:
+            return {"reply": "Groq API key not configured"}
 
-        client = InferenceClient(token=hf_token)
+        client = Groq(api_key=api_key)
 
-        # ✅ Stable free model
-        response = client.text_generation(
-            model="bigscience/bloom-560m",
-            prompt=f"Answer as a healthcare data expert: {data.question}",
-            max_new_tokens=150,
+        chat = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a healthcare data expert helping reduce patient no-shows. Give clear, practical, short answers."
+                },
+                {
+                    "role": "user",
+                    "content": data.question
+                }
+            ],
+            model="llama3-8b-8192"
         )
 
-        return {"reply": response}
+        return {
+            "reply": chat.choices[0].message.content
+        }
 
     except Exception as e:
         return {"reply": f"AI Error: {str(e)}"}
