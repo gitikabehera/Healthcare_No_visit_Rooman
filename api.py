@@ -18,7 +18,7 @@ app.add_middleware(
 )
 
 # -------------------------------
-# SAFE MODEL LOADING (IMPORTANT)
+# SAFE MODEL LOADING
 # -------------------------------
 model = None
 scaler = None
@@ -53,14 +53,12 @@ def home():
     return {"status": "API is active and running"}
 
 # -------------------------------
-# PREDICT (SAFE HANDLING)
+# PREDICT
 # -------------------------------
 @app.post("/predict")
 def predict(data: PatientData):
     if model is None or scaler is None:
-        return {
-            "message": "Prediction model not available in deployed version"
-        }
+        return {"message": "Prediction model not available in deployed version"}
 
     try:
         input_dict = {col: 0 for col in feature_cols}
@@ -94,7 +92,7 @@ def predict(data: PatientData):
         raise HTTPException(status_code=500, detail=str(e))
 
 # -------------------------------
-# AI CHAT (HUGGING FACE SAFE)
+# AI CHAT (FINAL FIXED VERSION)
 # -------------------------------
 @app.post("/ask_ai")
 def ask_ai(data: ChatRequest):
@@ -108,16 +106,14 @@ def ask_ai(data: ChatRequest):
 
         client = InferenceClient(token=hf_token)
 
-        response = client.chat_completion(
-            model="meta-llama/Llama-3.1-8B-Instruct",
-            messages=[
-                {"role": "system", "content": "You are a healthcare data expert."},
-                {"role": "user", "content": data.question}
-            ],
-            max_tokens=200,
+        # ✅ Use working public model
+        response = client.text_generation(
+            model="HuggingFaceH4/zephyr-7b-beta",
+            prompt=f"Answer as a healthcare data expert: {data.question}",
+            max_new_tokens=200,
         )
 
-        return {"reply": response.choices[0].message.content}
+        return {"reply": response}
 
     except Exception as e:
         return {"reply": f"AI Error: {str(e)}"}
